@@ -2,6 +2,7 @@ import { z } from 'zod'
 import { HttpError } from '../http/errors'
 import { CurrentUser, Ticket, TICKET_STATUSES, TicketStatus } from '../domain/ticket'
 import { TicketRepository } from '../repositories/ticket-repository'
+import { ReplyRepository } from '../repositories/reply-repository'
 import { notifyAssignee } from './notification-service'
 
 export const PAGE_SIZE = 20
@@ -15,12 +16,19 @@ const createTicketSchema = z.object({
     .max(5000, 'Descrição deve ter entre 10 e 5000 caracteres'),
 })
 
+const replySchema = z.object({
+  body: z.string().trim().min(1, 'A resposta não pode ser vazia').max(5000, 'A resposta pode ter no máximo 5000 caracteres'),
+})
+
 export function formatTicketRef(ticket: { id: string; title: string }) {
   return `#${ticket.id.slice(0, 8)} (${ticket.title})`
 }
 
 export class TicketService {
-  constructor(private tickets: TicketRepository) {}
+  constructor(
+    private tickets: TicketRepository,
+    private replies: ReplyRepository,
+  ) {}
 
   async create(user: CurrentUser, input: unknown) {
     if (user.role !== 'customer') {
@@ -85,5 +93,18 @@ export class TicketService {
       throw new HttpError(409, 'invalid_transition', 'Só chamado em andamento pode ser resolvido')
     }
     return this.tickets.update(id, { status: 'resolved' })
+  }
+
+  async addReply(user: CurrentUser, id: string, input: unknown) {
+    const ticket = await this.getById(user, id)
+    const parsed = replySchema.safeParse(input)
+    if (!parsed.success) {
+      throw new HttpError(422, 'validation_error', parsed.error.issues[0].message)
+    }
+    const reply = await this.replies.create({ ticketId: id, authorId: user.id, body: parsed.data.body })
+    if (user.role === 'customer' && ticket.status === 'resolved') {
+      await this.tickets.update(id, { status: 'open' })
+    }
+    return reply
   }
 }

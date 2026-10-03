@@ -3,9 +3,10 @@ import { asyncHandler } from '../errors'
 import { requireAuth } from '../middlewares/auth'
 import { TicketService } from '../../services/ticket-service'
 import { ticketRepository } from '../../repositories/ticket-repository'
+import { replyRepository } from '../../repositories/reply-repository'
 
 const router = Router()
-const ticketService = new TicketService(ticketRepository)
+const ticketService = new TicketService(ticketRepository, replyRepository)
 
 export function toTicketJson(t: any) {
   return {
@@ -20,6 +21,17 @@ export function toTicketJson(t: any) {
     assigneeId: t.assigneeId,
     createdAt: t.createdAt.toISOString(),
     updatedAt: t.updatedAt.toISOString(),
+  }
+}
+
+function toReplyJson(r: any) {
+  return {
+    id: r.id,
+    ticketId: r.ticketId,
+    authorId: r.authorId,
+    body: r.body,
+    createdAt: r.createdAt.toISOString(),
+    author: r.author,
   }
 }
 
@@ -45,7 +57,10 @@ router.get(
   '/:id',
   asyncHandler(async (req, res) => {
     const ticket = await ticketService.getDetails(req.user, req.params.id)
-    res.json(toTicketJson(ticket))
+    res.json({
+      ...toTicketJson(ticket),
+      replies: ticket.replies.map(toReplyJson),
+    })
   }),
 )
 
@@ -62,6 +77,14 @@ router.post(
   asyncHandler(async (req, res) => {
     const ticket = await ticketService.resolve(req.user, req.params.id)
     res.json(toTicketJson(ticket))
+  }),
+)
+
+router.post(
+  '/:id/replies',
+  asyncHandler(async (req, res) => {
+    const reply = await ticketService.addReply(req.user, req.params.id, req.body)
+    res.status(201).json(toReplyJson(reply))
   }),
 )
 
