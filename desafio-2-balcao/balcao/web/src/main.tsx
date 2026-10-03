@@ -7,6 +7,7 @@ import RegisterPage from './pages/RegisterPage'
 import TicketsPage from './pages/TicketsPage'
 import NewTicketPage from './pages/NewTicketPage'
 import TicketDetailPage from './pages/TicketDetailPage'
+import StatsPage from './pages/StatsPage'
 import './styles.css'
 
 createRoot(document.getElementById('root')!).render(
@@ -19,6 +20,7 @@ createRoot(document.getElementById('root')!).render(
           <Route path="/tickets" element={<TicketsPage />} />
           <Route path="/tickets/new" element={<NewTicketPage />} />
           <Route path="/tickets/:id" element={<TicketDetailPage />} />
+          <Route path="/stats" element={<StatsPage />} />
         </Route>
         <Route path="*" element={<Navigate to="/tickets" replace />} />
       </Routes>
