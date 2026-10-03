@@ -1,12 +1,17 @@
 import { Router } from 'express'
+import multer from 'multer'
 import { asyncHandler } from '../errors'
 import { requireAuth } from '../middlewares/auth'
 import { TicketService } from '../../services/ticket-service'
 import { ticketRepository } from '../../repositories/ticket-repository'
 import { replyRepository } from '../../repositories/reply-repository'
+import { attachmentRepository } from '../../repositories/attachment-repository'
+import { AttachmentService } from '../../services/attachment-service'
 
 const router = Router()
 const ticketService = new TicketService(ticketRepository, replyRepository)
+const attachmentService = new AttachmentService(attachmentRepository, ticketService)
+const upload = multer({ storage: multer.memoryStorage() })
 
 export function toTicketJson(t: any) {
   return {
@@ -60,6 +65,7 @@ router.get(
     res.json({
       ...toTicketJson(ticket),
       replies: ticket.replies.map(toReplyJson),
+      attachments: ticket.attachments,
     })
   }),
 )
@@ -85,6 +91,15 @@ router.post(
   asyncHandler(async (req, res) => {
     const reply = await ticketService.addReply(req.user, req.params.id, req.body)
     res.status(201).json(toReplyJson(reply))
+  }),
+)
+
+router.post(
+  '/:id/attachments',
+  upload.single('file'),
+  asyncHandler(async (req, res) => {
+    const attachment = await attachmentService.upload(req, req.params.id)
+    res.status(201).json(attachment)
   }),
 )
 

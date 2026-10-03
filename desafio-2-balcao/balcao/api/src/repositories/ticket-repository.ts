@@ -33,6 +33,7 @@ export class PrismaTicketRepository implements TicketRepository {
           orderBy: { createdAt: 'asc' },
           include: { author: { select: { id: true, name: true, role: true } } },
         },
+        attachments: { orderBy: { createdAt: 'asc' } },
       },
     })
   }
