@@ -105,3 +105,25 @@ td {
   align-items: center;
   margin-top: 12px;
 }
+
+.muted {
+  color: #777;
+  font-size: 13px;
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+  margin: 12px 0;
+}
+
+.reply {
+  background: #fff;
+  padding: 8px 12px;
+  border-radius: 4px;
+  margin-bottom: 8px;
+}
+
+.reply p {
+  margin: 6px 0 0;
+}
