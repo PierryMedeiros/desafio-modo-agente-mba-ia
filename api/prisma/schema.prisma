@@ -20,4 +20,49 @@ model User {
   passwordHash String
   role         Role     @default(customer)
   createdAt    DateTime @default(now())
+
+  tickets         Ticket[] @relation("CustomerTickets")
+  assignedTickets Ticket[] @relation("AssignedTickets")
+}
+
+enum TicketStatus {
+  open
+  in_progress
+  resolved
+}
+
+enum TicketCategory {
+  billing
+  technical
+  account
+  other
+}
+
+enum TicketPriority {
+  low
+  medium
+  high
+  urgent
+}
+
+enum TriageStatus {
+  pending
+  done
+  failed
+}
+
+model Ticket {
+  id           String          @id @default(uuid())
+  title        String
+  description  String
+  status       TicketStatus    @default(open)
+  category     TicketCategory?
+  priority     TicketPriority?
+  triageStatus TriageStatus    @default(pending)
+  customerId   String
+  customer     User            @relation("CustomerTickets", fields: [customerId], references: [id])
+  assigneeId   String?
+  assignee     User?           @relation("AssignedTickets", fields: [assigneeId], references: [id])
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
 }
