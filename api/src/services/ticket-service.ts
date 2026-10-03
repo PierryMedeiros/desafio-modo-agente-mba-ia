@@ -24,6 +24,13 @@ export function formatTicketRef(ticket: { id: string; title: string }) {
   return `#${ticket.id.slice(0, 8)} (${ticket.title})`
 }
 
+const SLA_HOURS = { urgent: 4, high: 8, medium: 24, low: 72 }
+
+export function calculateSlaDeadline(ticket: Pick<Ticket, 'createdAt' | 'priority'>) {
+  const hours = SLA_HOURS[ticket.priority || 'medium']
+  return new Date(ticket.createdAt.getTime() + hours * 60 * 60 * 1000)
+}
+
 export class TicketService {
   constructor(
     private tickets: TicketRepository,
