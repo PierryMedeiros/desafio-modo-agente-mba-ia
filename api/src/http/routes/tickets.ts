@@ -1,12 +1,14 @@
 import { Router } from 'express'
 import multer from 'multer'
-import { asyncHandler } from '../errors'
+import OpenAI from 'openai'
+import { asyncHandler, HttpError } from '../errors'
 import { requireAuth } from '../middlewares/auth'
 import { TicketService } from '../../services/ticket-service'
 import { ticketRepository } from '../../repositories/ticket-repository'
 import { replyRepository } from '../../repositories/reply-repository'
 import { attachmentRepository } from '../../repositories/attachment-repository'
 import { AttachmentService } from '../../services/attachment-service'
+import { userRepository } from '../../repositories/user-repository'
 
 const router = Router()
 const ticketService = new TicketService(ticketRepository, replyRepository)
@@ -100,6 +102,37 @@ router.post(
   asyncHandler(async (req, res) => {
     const attachment = await attachmentService.upload(req, req.params.id)
     res.status(201).json(attachment)
+  }),
+)
+
+router.post(
+  '/:id/suggest-reply',
+  asyncHandler(async (req, res) => {
+    if (req.user.role === 'customer') {
+      throw new HttpError(403, 'forbidden', 'Só atendentes e admins podem pedir sugestão')
+    }
+    const ticket = await ticketService.getById(req.user, req.params.id)
+    const customer = await userRepository.findById(ticket.customerId)
+    const customerName = customer ? customer.name : 'cliente'
+
+    if (process.env.AI_MODE === 'openai') {
+      const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
+      const completion = await openai.chat.completions.create({
+        model: 'gpt-4o-mini',
+        messages: [
+          {
+            role: 'system',
+            content: 'Você é um atendente de suporte. Escreva uma resposta curta e educada, em português, para o chamado.',
+          },
+          { role: 'user', content: `Cliente: ${customerName}\nTítulo: ${ticket.title}\n\n${ticket.description}` },
+        ],
+      })
+      return res.json({ suggestion: completion.choices[0].message.content })
+    }
+
+    res.json({
+      suggestion: `Olá, ${customerName}! Recebemos o seu chamado "${ticket.title}" e a nossa equipe já está analisando.`,
+    })
   }),
 )
 
