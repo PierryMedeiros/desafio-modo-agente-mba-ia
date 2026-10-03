@@ -7,7 +7,8 @@
   },
   "scripts": {
     "dev": "tsx watch --env-file=.env src/main.ts",
-    "start": "tsx --env-file=.env src/main.ts"
+    "start": "tsx --env-file=.env src/main.ts",
+    "worker": "tsx --env-file=.env src/jobs/triage-worker.ts"
   },
   "dependencies": {
     "@prisma/client": "^6.19.3",
@@ -16,6 +17,7 @@
     "express": "^4.22.3",
     "jsonwebtoken": "^9.0.3",
     "lodash": "^4.18.1",
+    "openai": "^7.27.0",
     "zod": "^4.6.5"
   },
   "devDependencies": {
