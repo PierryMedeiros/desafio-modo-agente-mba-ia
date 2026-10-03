@@ -23,6 +23,7 @@ model User {
 
   tickets         Ticket[] @relation("CustomerTickets")
   assignedTickets Ticket[] @relation("AssignedTickets")
+  replies         Reply[]
 }
 
 enum TicketStatus {
@@ -65,4 +66,15 @@ model Ticket {
   assignee     User?           @relation("AssignedTickets", fields: [assigneeId], references: [id])
   createdAt    DateTime        @default(now())
   updatedAt    DateTime        @updatedAt
+  replies      Reply[]
+}
+
+model Reply {
+  id        String   @id @default(uuid())
+  ticketId  String
+  ticket    Ticket   @relation(fields: [ticketId], references: [id])
+  authorId  String
+  author    User     @relation(fields: [authorId], references: [id])
+  body      String
+  createdAt DateTime @default(now())
 }

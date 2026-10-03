@@ -26,7 +26,15 @@ export class PrismaTicketRepository implements TicketRepository {
   }
 
   findByIdWithDetails(id: string) {
-    return prisma.ticket.findUnique({ where: { id } })
+    return prisma.ticket.findUnique({
+      where: { id },
+      include: {
+        replies: {
+          orderBy: { createdAt: 'asc' },
+          include: { author: { select: { id: true, name: true, role: true } } },
+        },
+      },
+    })
   }
 
   async list(filter: TicketFilter, page: number, pageSize: number) {
