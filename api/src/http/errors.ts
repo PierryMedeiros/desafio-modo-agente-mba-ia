@@ -24,6 +24,9 @@ export function errorHandler(err: any, _req: Request, res: Response, _next: Next
   if (err instanceof HttpError) {
     return res.status(err.status).json({ error: err.code, message: err.message })
   }
+  if (err.name === 'MulterError') {
+    return res.status(422).json({ error: 'validation_error', message: err.message })
+  }
   if (err.type === 'entity.parse.failed') {
     return res.status(400).json({ error: 'bad_request', message: 'JSON inválido' })
   }

@@ -21,9 +21,10 @@ model User {
   role         Role     @default(customer)
   createdAt    DateTime @default(now())
 
-  tickets         Ticket[] @relation("CustomerTickets")
-  assignedTickets Ticket[] @relation("AssignedTickets")
+  tickets         Ticket[]     @relation("CustomerTickets")
+  assignedTickets Ticket[]     @relation("AssignedTickets")
   replies         Reply[]
+  attachments     Attachment[]
 }
 
 enum TicketStatus {
@@ -67,6 +68,7 @@ model Ticket {
   createdAt    DateTime        @default(now())
   updatedAt    DateTime        @updatedAt
   replies      Reply[]
+  attachments  Attachment[]
 }
 
 model Reply {
@@ -77,4 +79,17 @@ model Reply {
   author    User     @relation(fields: [authorId], references: [id])
   body      String
   createdAt DateTime @default(now())
+}
+
+model Attachment {
+  id           String   @id @default(uuid())
+  ticketId     String
+  ticket       Ticket   @relation(fields: [ticketId], references: [id])
+  uploaderId   String
+  uploader     User     @relation(fields: [uploaderId], references: [id])
+  originalName String
+  storedName   String
+  mimeType     String
+  sizeBytes    Int
+  createdAt    DateTime @default(now())
 }
