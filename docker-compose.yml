@@ -1,14 +1,21 @@
+# Postgres de UMA cópia do Balcão. Não suba direto: `npm run up` escolhe o nome do
+# projeto, a porta e o banco de cada cópia (worktree) e passa por estas variáveis.
 services:
   db:
     image: postgres:16
     environment:
       POSTGRES_USER: balcao
       POSTGRES_PASSWORD: balcao
-      POSTGRES_DB: balcao
+      POSTGRES_DB: ${BALCAO_DB_NAME:-balcao}
     ports:
-      - "5432:5432"
+      - "127.0.0.1:${BALCAO_DB_PORT:-5432}:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U balcao -d ${BALCAO_DB_NAME:-balcao}"]
+      interval: 1s
+      timeout: 3s
+      retries: 30
 
 volumes:
   pgdata:
