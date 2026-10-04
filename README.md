@@ -40,7 +40,8 @@ Duas cópias rodam ao mesmo tempo (ex.: `git worktree add ../copia-b`, `cd ../co
 Detalhes em [docs/ambiente.md](docs/ambiente.md).
 
 A IA roda em modo fake por padrão (`AI_MODE=fake` em `api/.env`), sem chave. Para a OpenAI,
-coloque `AI_MODE=openai` e `OPENAI_API_KEY` em `api/.env` e rode `npm run up` de novo.
+coloque `AI_MODE=openai` e `OPENAI_API_KEY` em `api/.env` e rode `npm run down` e `npm run up`
+(o `up` mantém o processo que já está no ar).
 
 **Testes:** unitários com `npm test` em `api/` (também rodam nos gates). Caixa-preta, com a
 cópia no ar: `cd blackbox && npm ci && API_URL=<API da cópia> npm test`.
