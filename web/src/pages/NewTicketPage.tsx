@@ -1,6 +1,7 @@
 import { FormEvent, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { createTicket } from '../api/tickets'
+import { errorMessage } from '../utils/errors'
 
 export default function NewTicketPage() {
   const navigate = useNavigate()
@@ -16,8 +17,8 @@ export default function NewTicketPage() {
     try {
       const ticket = await createTicket(title, description)
       navigate(`/tickets/${ticket.id}`)
-    } catch (err: any) {
-      setError(err.message)
+    } catch (err) {
+      setError(errorMessage(err))
     } finally {
       setSaving(false)
     }
