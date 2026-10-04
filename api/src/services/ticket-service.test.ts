@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from 'vitest'
-import { TicketService, formatTicketRef } from './ticket-service'
-import { HttpError } from '../http/errors'
-import { CurrentUser, Ticket } from '../domain/ticket'
+import { TicketService } from './ticket-service'
+import { DomainError } from '../domain/errors'
+import { CurrentUser, formatTicketRef, Reply, Ticket } from '../domain/ticket'
 import { TicketFilter, TicketRepository, TicketUpdate } from '../repositories/ticket-repository'
 import { ReplyRepository } from '../repositories/reply-repository'
 
@@ -54,10 +54,15 @@ class FakeTicketRepository implements TicketRepository {
 }
 
 class FakeReplyRepository implements ReplyRepository {
-  items: any[] = []
+  items: Reply[] = []
 
   async create(data: { ticketId: string; authorId: string; body: string }) {
-    const reply = { id: `reply-${this.items.length + 1}`, ...data, createdAt: new Date() }
+    const reply: Reply = {
+      id: `reply-${this.items.length + 1}`,
+      ...data,
+      createdAt: new Date(),
+      author: { id: data.authorId, name: 'Autor', role: 'customer' },
+    }
     this.items.push(reply)
     return reply
   }
@@ -69,11 +74,11 @@ const agent: CurrentUser = { id: 'a1', role: 'agent' }
 const otherAgent: CurrentUser = { id: 'a2', role: 'agent' }
 const admin: CurrentUser = { id: 'adm', role: 'admin' }
 
-async function expectHttpError(promise: Promise<unknown>, status: number, code: string) {
-  const err: any = await promise.catch((e) => e)
-  expect(err).toBeInstanceOf(HttpError)
-  expect(err.status).toBe(status)
-  expect(err.code).toBe(code)
+// O status HTTP de cada código está coberto em src/http/errors.test.ts.
+async function expectDomainError(promise: Promise<unknown>, code: string) {
+  const err: unknown = await promise.catch((e) => e)
+  expect(err).toBeInstanceOf(DomainError)
+  expect((err as DomainError).code).toBe(code)
 }
 
 describe('TicketService', () => {
@@ -99,12 +104,12 @@ describe('TicketService', () => {
   })
 
   it('não deixa atendente abrir chamado', async () => {
-    await expectHttpError(service.create(agent, valid), 403, 'forbidden')
+    await expectDomainError(service.create(agent, valid), 'forbidden')
   })
 
   it('valida título e descrição', async () => {
-    await expectHttpError(service.create(customer, { title: 'Oi', description: valid.description }), 422, 'validation_error')
-    await expectHttpError(service.create(customer, { title: valid.title, description: 'curta' }), 422, 'validation_error')
+    await expectDomainError(service.create(customer, { title: 'Oi', description: valid.description }), 'validation_error')
+    await expectDomainError(service.create(customer, { title: valid.title, description: 'curta' }), 'validation_error')
   })
 
   it('cliente só lista os próprios chamados', async () => {
@@ -120,7 +125,7 @@ describe('TicketService', () => {
 
   it('cliente recebe 404 no chamado de outro cliente', async () => {
     const ticket = await service.create(otherCustomer, valid)
-    await expectHttpError(service.getById(customer, ticket.id), 404, 'not_found')
+    await expectDomainError(service.getById(customer, ticket.id), 'not_found')
   })
 
   it('atendente assume chamado aberto', async () => {
@@ -134,25 +139,25 @@ describe('TicketService', () => {
     const ticket = await service.create(customer, valid)
     await service.assign(agent, ticket.id)
     await service.resolve(agent, ticket.id)
-    await expectHttpError(service.assign(agent, ticket.id), 409, 'invalid_transition')
+    await expectDomainError(service.assign(agent, ticket.id), 'invalid_transition')
   })
 
   it('cliente não assume chamado', async () => {
     const ticket = await service.create(customer, valid)
-    await expectHttpError(service.assign(customer, ticket.id), 403, 'forbidden')
+    await expectDomainError(service.assign(customer, ticket.id), 'forbidden')
   })
 
   it('só quem assumiu resolve', async () => {
     const ticket = await service.create(customer, valid)
     await service.assign(agent, ticket.id)
-    await expectHttpError(service.resolve(otherAgent, ticket.id), 403, 'forbidden')
+    await expectDomainError(service.resolve(otherAgent, ticket.id), 'forbidden')
     const resolved = await service.resolve(admin, ticket.id)
     expect(resolved.status).toBe('resolved')
   })
 
   it('não resolve chamado que não está em andamento', async () => {
     const ticket = await service.create(customer, valid)
-    await expectHttpError(service.resolve(admin, ticket.id), 409, 'invalid_transition')
+    await expectDomainError(service.resolve(admin, ticket.id), 'invalid_transition')
   })
 
   it('resposta do cliente reabre chamado resolvido mantendo o responsável', async () => {
@@ -175,7 +180,7 @@ describe('TicketService', () => {
 
   it('não aceita resposta vazia', async () => {
     const ticket = await service.create(customer, valid)
-    await expectHttpError(service.addReply(customer, ticket.id, { body: '' }), 422, 'validation_error')
+    await expectDomainError(service.addReply(customer, ticket.id, { body: '' }), 'validation_error')
     expect(replies.items).toHaveLength(0)
   })
 

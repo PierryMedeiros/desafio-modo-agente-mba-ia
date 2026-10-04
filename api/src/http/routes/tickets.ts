@@ -1,21 +1,13 @@
 import { Router } from 'express'
 import multer from 'multer'
-import OpenAI from 'openai'
-import { asyncHandler, HttpError } from '../errors'
-import { requireAuth } from '../middlewares/auth'
+import { asyncHandler } from '../errors'
+import { currentUser, requireAuth } from '../middlewares/auth'
+import { Reply, Ticket } from '../../domain/ticket'
 import { TicketService } from '../../services/ticket-service'
-import { ticketRepository } from '../../repositories/ticket-repository'
-import { replyRepository } from '../../repositories/reply-repository'
-import { attachmentRepository } from '../../repositories/attachment-repository'
 import { AttachmentService } from '../../services/attachment-service'
-import { userRepository } from '../../repositories/user-repository'
+import { ReplySuggestionService } from '../../services/reply-suggestion-service'
 
-const router = Router()
-const ticketService = new TicketService(ticketRepository, replyRepository)
-const attachmentService = new AttachmentService(attachmentRepository, ticketService)
-const upload = multer({ storage: multer.memoryStorage() })
-
-export function toTicketJson(t: any) {
+function toTicketJson(t: Ticket) {
   return {
     id: t.id,
     title: t.title,
@@ -31,7 +23,7 @@ export function toTicketJson(t: any) {
   }
 }
 
-function toReplyJson(r: any) {
+function toReplyJson(r: Reply) {
   return {
     id: r.id,
     ticketId: r.ticketId,
@@ -42,98 +34,90 @@ function toReplyJson(r: any) {
   }
 }
 
-router.use(requireAuth)
+export function ticketRoutes(
+  ticketService: TicketService,
+  attachmentService: AttachmentService,
+  suggestionService: ReplySuggestionService,
+) {
+  const router = Router()
+  const upload = multer({ storage: multer.memoryStorage() })
 
-router.get(
-  '/',
-  asyncHandler(async (req, res) => {
-    const result = await ticketService.list(req.user, req.query)
-    res.json({ ...result, items: result.items.map(toTicketJson) })
-  }),
-)
+  router.use(requireAuth)
 
-router.post(
-  '/',
-  asyncHandler(async (req, res) => {
-    const ticket = await ticketService.create(req.user, req.body)
-    res.status(201).json(toTicketJson(ticket))
-  }),
-)
+  router.get(
+    '/',
+    asyncHandler(async (req, res) => {
+      const result = await ticketService.list(currentUser(req), req.query)
+      res.json({ ...result, items: result.items.map(toTicketJson) })
+    }),
+  )
 
-router.get(
-  '/:id',
-  asyncHandler(async (req, res) => {
-    const ticket = await ticketService.getDetails(req.user, req.params.id)
-    res.json({
-      ...toTicketJson(ticket),
-      replies: ticket.replies.map(toReplyJson),
-      attachments: ticket.attachments,
-    })
-  }),
-)
+  router.post(
+    '/',
+    asyncHandler(async (req, res) => {
+      const ticket = await ticketService.create(currentUser(req), req.body)
+      res.status(201).json(toTicketJson(ticket))
+    }),
+  )
 
-router.post(
-  '/:id/assign',
-  asyncHandler(async (req, res) => {
-    const ticket = await ticketService.assign(req.user, req.params.id)
-    res.json(toTicketJson(ticket))
-  }),
-)
-
-router.post(
-  '/:id/resolve',
-  asyncHandler(async (req, res) => {
-    const ticket = await ticketService.resolve(req.user, req.params.id)
-    res.json(toTicketJson(ticket))
-  }),
-)
-
-router.post(
-  '/:id/replies',
-  asyncHandler(async (req, res) => {
-    const reply = await ticketService.addReply(req.user, req.params.id, req.body)
-    res.status(201).json(toReplyJson(reply))
-  }),
-)
-
-router.post(
-  '/:id/attachments',
-  upload.single('file'),
-  asyncHandler(async (req, res) => {
-    const attachment = await attachmentService.upload(req, req.params.id)
-    res.status(201).json(attachment)
-  }),
-)
-
-router.post(
-  '/:id/suggest-reply',
-  asyncHandler(async (req, res) => {
-    if (req.user.role === 'customer') {
-      throw new HttpError(403, 'forbidden', 'Só atendentes e admins podem pedir sugestão')
-    }
-    const ticket = await ticketService.getById(req.user, req.params.id)
-    const customer = await userRepository.findById(ticket.customerId)
-    const customerName = customer ? customer.name : 'cliente'
-
-    if (process.env.AI_MODE === 'openai') {
-      const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
-      const completion = await openai.chat.completions.create({
-        model: 'gpt-4o-mini',
-        messages: [
-          {
-            role: 'system',
-            content: 'Você é um atendente de suporte. Escreva uma resposta curta e educada, em português, para o chamado.',
-          },
-          { role: 'user', content: `Cliente: ${customerName}\nTítulo: ${ticket.title}\n\n${ticket.description}` },
-        ],
+  router.get(
+    '/:id',
+    asyncHandler(async (req, res) => {
+      const ticket = await ticketService.getDetails(currentUser(req), req.params.id)
+      res.json({
+        ...toTicketJson(ticket),
+        replies: ticket.replies.map(toReplyJson),
+        attachments: ticket.attachments,
       })
-      return res.json({ suggestion: completion.choices[0].message.content })
-    }
+    }),
+  )
 
-    res.json({
-      suggestion: `Olá, ${customerName}! Recebemos o seu chamado "${ticket.title}" e a nossa equipe já está analisando.`,
-    })
-  }),
-)
+  router.post(
+    '/:id/assign',
+    asyncHandler(async (req, res) => {
+      const ticket = await ticketService.assign(currentUser(req), req.params.id)
+      res.json(toTicketJson(ticket))
+    }),
+  )
 
-export default router
+  router.post(
+    '/:id/resolve',
+    asyncHandler(async (req, res) => {
+      const ticket = await ticketService.resolve(currentUser(req), req.params.id)
+      res.json(toTicketJson(ticket))
+    }),
+  )
+
+  router.post(
+    '/:id/replies',
+    asyncHandler(async (req, res) => {
+      const reply = await ticketService.addReply(currentUser(req), req.params.id, req.body)
+      res.status(201).json(toReplyJson(reply))
+    }),
+  )
+
+  router.post(
+    '/:id/attachments',
+    upload.single('file'),
+    asyncHandler(async (req, res) => {
+      const file = req.file && {
+        originalName: req.file.originalname,
+        mimeType: req.file.mimetype,
+        size: req.file.size,
+        buffer: req.file.buffer,
+      }
+      const attachment = await attachmentService.upload(currentUser(req), req.params.id, file)
+      res.status(201).json(attachment)
+    }),
+  )
+
+  router.post(
+    '/:id/suggest-reply',
+    asyncHandler(async (req, res) => {
+      const suggestion = await suggestionService.suggest(currentUser(req), req.params.id)
+      res.json({ suggestion })
+    }),
+  )
+
+  return router
+}

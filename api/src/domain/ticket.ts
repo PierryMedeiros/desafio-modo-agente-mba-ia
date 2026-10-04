@@ -30,3 +30,38 @@ export interface CurrentUser {
   id: string
   role: Role
 }
+
+interface ReplyAuthor {
+  id: string
+  name: string
+  role: Role
+}
+
+export interface Reply {
+  id: string
+  ticketId: string
+  authorId: string
+  body: string
+  createdAt: Date
+  author: ReplyAuthor
+}
+
+export interface Attachment {
+  id: string
+  ticketId: string
+  uploaderId: string
+  originalName: string
+  storedName: string
+  mimeType: string
+  sizeBytes: number
+  createdAt: Date
+}
+
+export interface TicketDetails extends Ticket {
+  replies: Reply[]
+  attachments: Attachment[]
+}
+
+export function formatTicketRef(ticket: { id: string; title: string }) {
+  return `#${ticket.id.slice(0, 8)} (${ticket.title})`
+}

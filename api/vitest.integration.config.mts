@@ -2,7 +2,9 @@ import { defineConfig } from 'vitest/config'
 
 try {
   process.loadEnvFile('.env')
-} catch {}
+} catch {
+  // Sem .env: DATABASE_URL_TEST tem de vir do ambiente.
+}
 
 export default defineConfig({
   test: {
