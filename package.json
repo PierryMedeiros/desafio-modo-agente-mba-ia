@@ -1,0 +1,22 @@
+{
+  "name": "balcao-harness",
+  "private": true,
+  "description": "Ferramentas do harness do Balcão: subida por cópia, gates e hook",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "up": "node scripts/up.mjs",
+    "down": "node scripts/down.mjs",
+    "gates": "node scripts/gates.mjs",
+    "gates:deps": "depcruise api/src api/prisma api/test web/src web/vite.config.ts --config .dependency-cruiser.cjs"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "dependency-cruiser": "^18.5.0",
+    "eslint": "^10.12.0",
+    "knip": "^6.39.0",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.71.0"
+  }
+}
