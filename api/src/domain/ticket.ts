@@ -6,7 +6,7 @@ export type TicketCategory = 'billing' | 'technical' | 'account' | 'other'
 
 export type TicketPriority = 'low' | 'medium' | 'high' | 'urgent'
 
-export type TriageStatus = 'pending' | 'done' | 'failed'
+type TriageStatus = 'pending' | 'done' | 'failed'
 
 export const TICKET_STATUSES: TicketStatus[] = ['open', 'in_progress', 'resolved']
 export const TICKET_CATEGORIES: TicketCategory[] = ['billing', 'technical', 'account', 'other']

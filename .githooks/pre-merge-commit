@@ -1,0 +1,4 @@
+#!/bin/sh
+# O git não roda pre-commit em merge. Duas branches verdes podem gerar uma main vermelha
+# (incidente 4), então o merge passa pelos mesmos gates do pre-commit.
+exec "$(git rev-parse --show-toplevel)/.githooks/pre-commit"

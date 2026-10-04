@@ -1,0 +1,14 @@
+#!/bin/sh
+# Hook pre-commit do Balcão. Fica ativo depois de `npm run up` (git config core.hooksPath .githooks).
+# Roda os gates e bloqueia o commit se qualquer um falhar. A lista abaixo é explícita de propósito:
+#   G1  tipos (tsc em api/ e web/)
+#   G2  lint (eslint, sem erro e sem warning)
+#   G3  testes unitários da api
+#   G4-G10, R1, R2  camadas, env, imports, ciclos, código sem uso e regras próprias
+# Os gates rodam sobre a árvore de trabalho; leva poucos segundos.
+cd "$(git rev-parse --show-toplevel)" || exit 1
+node scripts/gates.mjs G1 G2 G3 G4 G5 G6 G7 G8 G9 G10 R1 R2 || {
+  echo
+  echo "Commit bloqueado pelos gates. Corrija as violações acima (detalhe em docs/gates.md)."
+  exit 1
+}
