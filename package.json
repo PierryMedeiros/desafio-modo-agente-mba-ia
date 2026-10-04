@@ -9,6 +9,7 @@
     "up": "node scripts/up.mjs",
     "down": "node scripts/down.mjs",
     "gates": "node scripts/gates.mjs",
+    "gates:autoteste": "node scripts/gates-autoteste.mjs",
     "gates:deps": "depcruise api/src api/prisma api/test web/src web/vite.config.ts --config .dependency-cruiser.cjs"
   },
   "devDependencies": {

@@ -1,0 +1,9 @@
+diff --git a/api/src/jobs/exemplo-r2.ts b/api/src/jobs/exemplo-r2.ts
+new file mode 100644
+--- /dev/null
++++ b/api/src/jobs/exemplo-r2.ts
+@@ -0,0 +1,4 @@
++// Exemplo de violação de R2: Prisma usado fora de api/src/repositories/.
++import { PrismaClient } from '@prisma/client'
++
++export const prisma = new PrismaClient()
