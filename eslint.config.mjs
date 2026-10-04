@@ -30,6 +30,8 @@ export default tseslint.config(
       '@typescript-eslint/no-unused-vars': 'error',
     },
   },
+  // Os dois blocos abaixo só tiram config/ do escopo de G5 e R1 (é lá que env e endereços
+  // podem aparecer). Nenhum arquivo sai do lint: config/ continua no bloco geral acima (G2).
   {
     files: ['api/src/**/*.ts'],
     ignores: ['api/src/config/**'],
