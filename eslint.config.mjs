@@ -19,7 +19,8 @@ const fixedAddress = {
 }
 
 export default tseslint.config(
-  { ignores: ['**/node_modules/**', '**/dist/**', 'blackbox/**', 'harness/**'] },
+  // .claude/ guarda as worktrees de agentes; nunca entram no lint desta cópia.
+  { ignores: ['**/node_modules/**', '**/dist/**', '.claude/**', 'blackbox/**', 'harness/**'] },
   {
     files: ['api/**/*.{ts,mts}', 'web/**/*.{ts,tsx}'],
     extends: [js.configs.recommended, ...tseslint.configs.recommended],

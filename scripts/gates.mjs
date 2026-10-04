@@ -42,7 +42,7 @@ const checks = [
     name: 'lint, env e endereços fixos (eslint)',
     ids: ['G2', 'G5', 'R1'],
     exec: () => {
-      const res = run(requireBin('.', 'eslint'), ['.', '--format', 'json', '--max-warnings', '0'])
+      const res = run(requireBin('.', 'eslint'), ['api', 'web', '--format', 'json', '--max-warnings', '0'])
       const reports = parseJson(res.stdout, 'eslint', res.out)
       const found = []
       for (const report of reports) {
