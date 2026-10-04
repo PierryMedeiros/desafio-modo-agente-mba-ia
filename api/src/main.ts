@@ -1,7 +1,9 @@
-import { app } from './http/app'
+import { env } from './config/env'
+import { buildServices } from './composition/services'
+import { createApp } from './http/app'
 
-const port = process.env.PORT || 4000
+const app = createApp(buildServices(), { corsOrigin: env.WEB_ORIGIN })
 
-app.listen(port, () => {
-  console.log(`API rodando em http://localhost:${port}`)
+app.listen(env.PORT, () => {
+  console.log(`API rodando na porta ${env.PORT}`)
 })

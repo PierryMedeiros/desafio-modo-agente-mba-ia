@@ -1,9 +1,10 @@
 import { describe, expect, it } from 'vitest'
 import { AuthService, EmailTakenError, InvalidCredentialsError } from './auth-service'
 import { NewUser, UserRepository } from '../repositories/user-repository'
+import { User } from '../domain/user'
 
 class FakeUserRepository implements UserRepository {
-  users: any[] = []
+  users: User[] = []
 
   async findById(id: string) {
     return this.users.find((u) => u.id === id) || null
@@ -13,8 +14,8 @@ class FakeUserRepository implements UserRepository {
     return this.users.find((u) => u.email === email) || null
   }
 
-  async create(data: NewUser): Promise<any> {
-    const user = { id: `u${this.users.length + 1}`, role: 'customer', createdAt: new Date(), ...data }
+  async create(data: NewUser): Promise<User> {
+    const user: User = { id: `u${this.users.length + 1}`, createdAt: new Date(), ...data, role: data.role ?? 'customer' }
     this.users.push(user)
     return user
   }
