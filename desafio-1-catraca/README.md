@@ -20,11 +20,11 @@ Entregar, em um repositório público no GitHub:
 - pelo menos uma wave entregue em paralelo, integrada por PRs;
 - um README que diz como rodar e onde está cada artefato.
 
-Esforço de referência: XX horas (placeholder, calibrado após a execução de referência).
+Esforço de referência: de 8 a 12 horas, somando o tempo dos agentes e o seu.
 
 ## Comportamento esperado: o brief
 
-Esta seção é o brief da fundadora. Tudo que o avaliador testa no produto está aqui; o resto (stack, telas, divisão em features, modelagem) é decisão sua. As regras têm identificador, de R01 a R13, para que o seu PRD e os seus contratos possam rastreá-las.
+Esta seção é o brief da fundadora. Tudo que o avaliador testa no produto está aqui; o resto (stack, telas fora do que as regras fixam, divisão em features e modelagem) é decisão sua. As regras têm identificador, de R01 a R13, para que o seu PRD e os seus contratos possam rastreá-las.
 
 ### Quem usa
 
@@ -58,7 +58,7 @@ Eventos
 
 Vagas e compra
 
-- R05. Vagas ocupadas são os ingressos pendentes mais os confirmados. Vagas disponíveis são a lotação menos as vagas ocupadas.
+- R05. Vagas ocupadas são os ingressos pendentes mais os confirmados. Vagas disponíveis são a lotação menos as vagas ocupadas; em evento cancelado, são zero.
 - R06. Cada compra é de um ingresso, feita pelo participante na vitrine ou pelo parceiro na API. A compra nasce pendente, já ocupa vaga e é respondida sem esperar o gateway.
 - R07. Sem vaga disponível, a compra é recusada: a vitrine exibe `Ingressos esgotados` (no lugar da compra ou como resposta à tentativa) e a API responde `sold_out`. As vagas ocupadas nunca passam da lotação, nem com compras simultâneas.
 - R08. Quando o gateway aprova, o ingresso fica confirmado. Quando recusa, fica recusado e a vaga é liberada.
@@ -66,7 +66,7 @@ Vagas e compra
 
 Check-in
 
-- R10. Na página de gestão do evento, o organizador informa o código de um ingresso. A primeira linha verdadeira da tabela abaixo define a mensagem exibida. Em evento cancelado, a mensagem `Evento cancelado` pode aparecer no lugar do campo de check-in.
+- R10. Na página de gestão do evento, o organizador informa o código de um ingresso. A primeira linha verdadeira da tabela abaixo define a mensagem exibida. Em evento cancelado, a mensagem `Evento cancelado` pode aparecer no lugar do campo de check-in; se o campo continuar disponível, vale a tabela.
 
 | Ordem | Situação do código | Mensagem |
 |---|---|---|
@@ -105,11 +105,11 @@ O pagamento passa por um gateway externo. No modo padrão do produto, que é o q
 
 | Final do cartão | Resultado | Quando a resposta chega |
 |---|---|---|
-| `0001` | aprovado | em até 5 segundos |
-| `0002` | recusado | em até 5 segundos |
-| `0003` | aprovado | entre 60 e 75 segundos |
-| `0004` | recusado | entre 60 e 75 segundos |
-| qualquer outro | recusado | em até 5 segundos |
+| `0001` | aprovado | entre 2 e 5 segundos |
+| `0002` | recusado | entre 2 e 5 segundos |
+| `0003` | aprovado | entre 30 e 40 segundos |
+| `0004` | recusado | entre 30 e 40 segundos |
+| qualquer outro | recusado | entre 2 e 5 segundos |
 
 O número do cartão tem 16 dígitos (ex.: `4000000000000001`); fora disso, a compra é rejeitada antes de criar o ingresso.
 
@@ -199,13 +199,13 @@ Agentes, avaliador e corretor precisam de um ambiente que não dependa de ningu�
 
 Conceitos do curso: Desenvolvimento paralelo com SDD (worktrees e conflitos) e Paralelização e tmux.
 
-As features são implementadas por agentes, na ordem das waves do PRD. Pelo menos uma wave de duas ou mais features é implementada em paralelo: cada feature na sua branch (em worktree ou equivalente), ao mesmo tempo, integradas à `main` por PRs. O histórico é a prova: o primeiro commit de cada branch da wave é anterior ao último commit das outras. Conflito de merge faz parte do jogo.
+As features são implementadas por agentes, na ordem das waves do PRD. Pelo menos uma wave de duas ou mais features é implementada em paralelo: cada feature na sua branch (em worktree ou equivalente), ao mesmo tempo, integradas à `main` por PRs. A prova é a lista de commits dos PRs no GitHub, que continua lá mesmo com squash e com a branch apagada: o primeiro commit de cada PR da wave é anterior ao último commit dos outros. Conflito de merge faz parte do jogo.
 
 ### 5. Avaliação independente
 
 Conceitos do curso: Introdução a Harness Engineering (self-evaluation bias), Desenvolvendo projeto prático (evaluator) e Pós implementação (o ciclo de implementar, avaliar e corrigir).
 
-Quem implementou não avalia. Cada feature é avaliada contra o seu contrato por um agente em uma sessão separada da do implementador, e cada avaliação gera um relatório novo, que não é alterado depois de commitado. O relatório registra a data, o commit avaliado, a ferramenta e o modelo usados e o veredito de cada item do contrato, com evidência (saída de comando, resposta HTTP, screenshot). Item reprovado volta para correção e para uma nova avaliação, até o relatório mais recente da feature aprovar tudo.
+Quem implementou não avalia. Cada feature é avaliada contra o seu contrato por um agente com contexto separado do implementador (outra sessão ou um subagente novo, de contexto vazio), e cada avaliação gera um relatório novo, que não é alterado depois de commitado. O relatório registra a data, o commit avaliado, a ferramenta e o modelo usados e o veredito de cada item do contrato, com evidência (saída de comando, resposta HTTP, screenshot). Item reprovado volta para correção e para uma nova avaliação, até o relatório mais recente da feature aprovar tudo. O relatório atesta a feature no commit avaliado, na branch ou na `main`; se uma feature posterior mudar o comportamento de outra, quem pega a regressão é o Fluxo do avaliador, rodado na `main` ao final.
 
 ### 6. Estado do projeto
 
@@ -229,7 +229,7 @@ A stack do produto é livre, com uma restrição: a máquina do avaliador tem s�
 - Cadastro de organizador pelo produto.
 - Mais de um ingresso por compra, mapa de assentos, cancelamento ou transferência de ingresso pelo participante.
 - Atualização em tempo real: recarregar a página para ver o status novo basta.
-- Fuso horário: datas no horário local da máquina.
+- Fuso horário: use o que preferir; o fluxo só usa datas com pelo menos um dia de folga.
 
 ## Critérios de aceite
 
@@ -239,7 +239,7 @@ Ambiente e harness
 
 ☐ Em um clone limpo, o comando de subida do README deixa o produto acessível, com a seed carregada, sem nenhum outro passo.
 ☐ Depois de derrubar, subir de novo funciona sem erro, inclusive na seed.
-☐ O comando de derrubar encerra tudo que a subida iniciou.
+☐ O comando de derrubar encerra tudo que a subida iniciou: nenhuma porta do produto responde e nenhum container do projeto continua rodando.
 ☐ O comando de gates passa na `main` e roda testes automatizados.
 ☐ O produto sobe e vende no modo simulado sem nenhuma chave de pagamento.
 ☐ O `AGENTS.md` da raiz tem os comandos de subir, derrubar e gates e o mapa dos artefatos; o arquivo específico da ferramenta, se houver, aponta para ele.
@@ -257,7 +257,7 @@ Produto
 ☐ O check-in exibe a mensagem exata de cada linha da tabela de R10.
 ☐ O evento cancelado sai da vitrine e da API, recusa compras pela API (`404` com `event_not_available`) e não pode ser editado (R11).
 ☐ Após o cancelamento, confirmados ficam estornados e pendentes ficam cancelados em até 10 segundos, e continuam assim depois que o gateway responde (R11).
-☐ Os seis números do painel batem com o estado dos ingressos em todas as conferências do Fluxo do avaliador (R12).
+☐ Cada número do painel conferido no Fluxo do avaliador bate com o estado dos ingressos (R12).
 ☐ Na área de organizador, um organizador não vê dados de evento de outro, nem pela lista nem pelo endereço direto, e participante e visitante não acessam essa área (R13).
 
 API de parceiros
@@ -283,7 +283,7 @@ Avaliação e estado
 
 Paralelismo e entrega
 
-☐ Uma wave de duas ou mais features foi implementada em branches separadas ao mesmo tempo: os PRs estão mergeados e listados no README, e o primeiro commit de cada branch é anterior ao último commit das outras.
+☐ Uma wave de duas ou mais features foi implementada em branches separadas ao mesmo tempo: os PRs estão mergeados e listados no README, e o primeiro commit de cada PR é anterior ao último commit dos outros.
 ☐ O README tem todas as seções descritas em Entregável.
 
 ## Fluxo do avaliador
@@ -314,9 +314,9 @@ curl -s -X POST "$API/api/partner/events/$E1/purchases" \
 
 A resposta é `202` com `pending`; guarde o `ticketId` em `$T2` e anote o `code` como C2. A listagem passa a mostrar E1 com `availableSeats` 0.
 
-**7.** Antes de completar 60 segundos do passo 6, uma compra de E1 pela API com o cartão `4000000000000001` responde `409` com `sold_out`, e a vitrine exibe `Ingressos esgotados` para o participante do passo 5.
+**7.** Antes de completar 30 segundos do passo 6, uma compra de E1 pela API com o cartão `4000000000000001` responde `409` com `sold_out`, e a vitrine exibe `Ingressos esgotados` para o participante do passo 5.
 
-**8.** Passados 75 segundos do passo 6, `$T2` está `declined` e E1 volta a ter `availableSeats` 1:
+**8.** Passados 45 segundos do passo 6, `$T2` está `declined` e E1 volta a ter `availableSeats` 1:
 
 ```
 curl -s -H "X-Api-Key: $KEY" "$API/api/partner/tickets/$T2"
@@ -328,13 +328,13 @@ Compre E1 pela API com o cartão `4000000000000001` (T3). Em até 5 segundos, T3
 
 **10.** No check-in de E1: C1 resulta em `Entrada liberada`; C1 de novo, em `Ingresso já utilizado`; C2, em `Ingresso não confirmado`; `ZZZZZZZZ`, em `Ingresso inválido para este evento`. O painel passa a mostrar Check-ins 1. Copie o endereço da página de gestão de E1.
 
-**11.** Como organizador B, a lista de eventos da área de organizador não mostra E1, e abrir o endereço copiado não exibe nenhum dado de E1. Ainda como B, crie e publique o evento E2 (lotação 1, R$ 20,00), pegue o `id` dele na listagem da API e compre-o com o cartão `4000000000000001`, anotando o código como C3. Como o participante da seed, e depois deslogado, o endereço copiado também não exibe dados de E1. De volta como A, C3 no check-in de E1 resulta em `Ingresso inválido para este evento`.
+**11.** Como organizador B, a lista de eventos da área de organizador não mostra E1, e abrir o endereço copiado não exibe nenhum dado de E1 (nome, números ou ingressos; o id no próprio endereço não conta). Ainda como B, crie e publique o evento E2 (lotação 1, R$ 20,00), pegue o `id` dele na listagem da API e compre-o pela API com o cartão `4000000000000001`, anotando o código como C3. Como o participante da seed, e depois deslogado, o endereço copiado também não exibe dados de E1. De volta como A, C3 no check-in de E1 resulta em `Ingresso inválido para este evento`.
 
-**12.** Como A, crie e publique o evento E3 (lotação 5, R$ 50,00), guarde o `id` em `$E3` e compre-o pela API com o cartão `4000000000000003` (`$T5`) e, logo depois, com o cartão `4000000000000001` (`$T6`, código C6). Espere T6 ficar `confirmed` e, antes de completar 60 segundos da compra de T5, cancele E3.
+**12.** Como A, crie e publique o evento E3 (lotação 5, R$ 50,00), guarde o `id` em `$E3`, deixe a página de gestão de E3 aberta e compre-o pela API com o cartão `4000000000000003` (`$T5`) e, logo depois, com o cartão `4000000000000001` (`$T6`, código C6). Espere T6 ficar `confirmed` e, antes de completar 30 segundos da compra de T5, cancele E3.
 
 **13.** E3 sai da vitrine e da listagem da API, e uma compra de E3 pela API responde `404` com `event_not_available`. Em até 10 segundos, T6 está `refunded` e T5 está `cancelled`. A página de gestão de E3 não permite editar o evento.
 
-**14.** Passados 75 segundos da compra de T5, T5 continua `cancelled`. No check-in de E3, C6 resulta em `Evento cancelado` (ou a mensagem aparece no lugar do campo). O painel de E3 mostra Confirmados 0, Pendentes 0, Check-ins 0, Receita R$ 0,00 e Estornados 1.
+**14.** Passados 45 segundos da compra de T5, T5 continua `cancelled`. No check-in de E3, C6 resulta em `Evento cancelado` (ou a mensagem aparece no lugar do campo). O painel de E3 mostra Confirmados 0, Pendentes 0, Check-ins 0, Vagas disponíveis 0, Receita R$ 0,00 e Estornados 1.
 
 **15.** Como A, crie e publique o evento E4 (lotação 5, R$ 10,00), guarde o `id` em `$E4` e dispare 30 compras simultâneas:
 
@@ -349,7 +349,7 @@ A saída mostra exatamente 5 respostas `202` e 25 `409`. Em até 10 segundos, o 
 
 **16.** Nas três rotas da API, sem o cabeçalho e com uma chave errada, a resposta é `401` com `unauthorized`. Uma compra com `"cardNumber":"123"` responde `422` com `invalid_request`, e a consulta de um `ticketId` inexistente responde `404` com `ticket_not_found`.
 
-**17.** Rode o comando de gates: passa. Rode o de derrubar: o produto para de responder, e nenhum container ou processo iniciado pela subida continua rodando. Suba de novo: sobe sem erro, e as credenciais da seed continuam funcionando.
+**17.** Rode o comando de gates: passa. Rode o de derrubar: nenhuma porta que a subida abriu responde, e nenhum container do projeto continua rodando (`docker ps`). Suba de novo: sobe sem erro, e as credenciais da seed continuam funcionando.
 
 **18.** Pelo mapa do README, confira o PRD, a spec, o plano e o contrato de cada feature, os relatórios, o arquivo de estado, o `AGENTS.md` e os PRs da wave paralela contra os critérios de Especificação, Avaliação e estado e Paralelismo e entrega. Um relatório que nunca foi alterado aparece em um único commit:
 
@@ -373,7 +373,7 @@ Regras de entrega: um projeto por repositório; os PRs da wave paralela continua
 
 ## Dicas finais
 
-Os cartões lentos levam mais de um minuto para responder, e esperar isso a cada teste local cansa. Nada impede que o atraso seja configurável no seu ambiente de testes, desde que o modo padrão, o do avaliador, siga a tabela do gateway.
+Os cartões lentos levam mais de meio minuto para responder, e esperar isso a cada teste local cansa. Nada impede que o atraso seja configurável no seu ambiente de testes, desde que o modo padrão, o do avaliador, siga a tabela do gateway.
 
 Teste de concorrência que passa uma vez não prova nada. Rode a rajada do passo 15 várias vezes, em eventos novos, antes de confiar nela. Pelo mesmo motivo, depois do último merge rode o fluxo inteiro contra a `main`, a partir de um clone limpo: é quando as features se encontram que as falhas aparecem.
 

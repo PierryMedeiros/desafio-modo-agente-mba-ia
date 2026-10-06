@@ -4,8 +4,8 @@ MBA em Engenharia de Software com IA. Repositório interno e temporário com os 
 
 | Pasta | Desafio | Situação |
 |---|---|---|
-| `desafio-1-catraca/` | Catraca: do brief ao produto em modo agente | enunciado escrito, falta o aluno de teste |
-| `desafio-2-balcao/` | Domando um legado | enunciado escrito, falta o aluno de teste |
+| `desafio-1-catraca/` | Catraca: do brief ao produto em modo agente | enunciado revisado após o aluno de teste |
+| `desafio-2-balcao/` | Domando um legado | enunciado revisado após o aluno de teste |
 
 ## Por que essa dupla
 

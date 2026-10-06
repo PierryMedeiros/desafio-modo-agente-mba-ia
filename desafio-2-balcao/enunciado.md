@@ -7,7 +7,7 @@ O Balcão é a central de chamados da empresa: clientes abrem chamados, uma IA f
 
 A primeira tentativa durou uma manhã. Duas cópias do projeto não sobem juntas, o README pede seis passos em três terminais, o `CLAUDE.md` manda rodar um comando que não existe e cada agente que entra no código aprende com o que vê: variável de ambiente lida em qualquer lugar, rota falando direto com o banco, serviço que conhece o Express.
 
-Você vai instalar o harness do Balcão. Não é para reescrever o sistema nem criar feature: é para que qualquer agente consiga subir o ambiente, mexer no código e provar que não quebrou nada, sem ninguém do lado. A tensão é a de todo legado: o harness codifica regras que o código de hoje ainda não respeita, e fazer o código passar a respeitá-las é parte do trabalho.
+Você vai instalar o harness do Balcão. Não é para reescrever o sistema do zero nem criar feature: é para que qualquer agente consiga subir o ambiente, mexer no código e provar que não quebrou nada, sem ninguém do lado. A tensão é a de todo legado: o harness codifica regras que o código de hoje ainda não respeita, e fazer o código passar a respeitá-las é parte do trabalho.
 
 ## Objetivo
 
@@ -21,11 +21,11 @@ Entregar, num fork público do repositório base:
 - um registro de incidentes que mostra o harness aprendendo com os erros do agente;
 - a API funcionando exatamente como antes.
 
-Esforço de referência: XX horas (placeholder, calibrado após a execução de referência).
+Esforço de referência: de 5 a 8 horas, somando o tempo dos agentes e o seu.
 
 ## O Balcão hoje
 
-Repositório base: https://github.com/devfullcycle/REPO-A-DEFINIR
+Repositório base: <repo a definir>
 
 ```
 api/                     API (Express + Prisma + Postgres) e worker de triagem
@@ -40,6 +40,7 @@ api/                     API (Express + Prisma + Postgres) e worker de triagem
     integrations/        cliente de IA, real e fake
     jobs/
       triage-worker.ts   entrada do worker
+    utils/               utilitários
   test/integration/      testes que exigem banco
 web/                     front (React + Vite)
   src/
@@ -62,7 +63,7 @@ Suba uma vez seguindo o README antes de mudar qualquer coisa. É o jeito mais r�
 
 ## Sobre o foco do desafio
 
-O foco é o harness, não o Balcão. Você muda o código o necessário para ele respeitar as regras do harness, e mais nada: nenhuma feature nova, nenhuma mudança de comportamento. A suíte caixa-preta é o seu cinto de segurança.
+O foco é o harness, não o Balcão. Fazer o código respeitar as invariantes exige refatoração de verdade: a G4 e a G6, sozinhas, mexem em boa parte da API. O que não pode mudar é o comportamento: nenhuma feature nova, nenhuma resposta diferente. A suíte caixa-preta é o seu cinto de segurança.
 
 Algumas travas são propositais, e cada uma tem uma pista:
 
@@ -83,7 +84,7 @@ Ao final:
 - esse comando informa os endereços da API e do front, o banco e a pasta de anexos daquela cópia;
 - rodar a subida de novo, sem derrubar antes, funciona, sem quebrar nem duplicar a seed;
 - outro comando derruba tudo que a subida daquela cópia iniciou, sem afetar outras cópias;
-- duas cópias do repositório (ex.: duas worktrees) rodam ao mesmo tempo, cada uma com as suas portas, o seu banco, a sua pasta de anexos e o seu worker, e cada front conversa com a API da sua cópia;
+- duas cópias do repositório (ex.: duas worktrees) rodam ao mesmo tempo, cada uma com as suas portas, o seu banco (outra base no mesmo Postgres ou outro Postgres, como preferir), a sua pasta de anexos e o seu worker, e cada front conversa com a API da sua cópia;
 - a IA continua em modo fake por padrão.
 
 ### 2. Gates que barram o desvio
@@ -107,9 +108,9 @@ Um único comando roda todas as verificações, sem parar na primeira falha, e n
 
 Repare que G6 e G8 contam também os imports só de tipo. Como cada ferramenta trata esse caso não é abordado no módulo, e descobrir faz parte do desafio.
 
-O código de hoje viola várias dessas invariantes. Na entrega, os gates passam na `main` porque as violações foram corrigidas, não escondidas: comentário de supressão ou arquivo excluído da verificação não vale.
+O código de hoje viola várias dessas invariantes. Na entrega, os gates passam na `main` porque as violações foram corrigidas, não escondidas: comentário de supressão ou arquivo excluído da verificação não vale. A única exceção aceita é a que define a própria regra, como `api/src/config/` na G5.
 
-Além das dez, você define pelo menos duas regras suas: algo que descobriu no Balcão e que vale proteger. Cada uma tem a motivação documentada e um exemplo de violação versionado que, aplicado, faz os gates falharem.
+Além das dez, você define pelo menos duas regras suas: algo que descobriu no Balcão e que vale proteger. Cada uma tem a motivação documentada e um exemplo de violação versionado que, aplicado, faz os gates falharem (ex.: um patch, ou um arquivo guardado fora de `api/src` e `web/src`, aplicado só na hora do teste).
 
 Por fim, um hook do Git roda gates antes de cada commit e bloqueia o commit quando eles falham, no mínimo os de tipo e de lint. Num clone novo, o hook fica ativo depois do comando de subida, sem nenhum passo extra.
 
@@ -119,23 +120,23 @@ Conceitos do curso: Introdução a Harness Engineering (por que `CLAUDE.md` e `A
 
 Ao final:
 
-- um `AGENTS.md` na raiz, com no máximo XX linhas, funciona como índice: como subir, derrubar e rodar os gates, as contas da seed, as regras de camada e onde está o detalhe;
+- um `AGENTS.md` na raiz, com no máximo 60 linhas, funciona como índice: como subir, derrubar e rodar os gates, as contas da seed, as regras de camada e onde está o detalhe;
 - o `CLAUDE.md` atual sai de cena e passa a apontar para o `AGENTS.md`;
-- todo comando e todo caminho citados no `AGENTS.md` existem e funcionam;
+- todo comando e todo caminho citados no `AGENTS.md` existem e funcionam (comando com placeholder vale, se o próprio `AGENTS.md` explica como preenchê-lo);
 - o README é reescrito para humanos, com as seções descritas em Entregável.
 
 ### 4. Registro de incidentes
 
 Conceitos do curso: Introdução a Harness Engineering (a cada erro do agente, uma mudança no harness para que ele não se repita) e Nova feature - desafio inicial (revisar o `AGENTS.md` com o aprendizado da sessão).
 
-Você vai usar agentes neste trabalho, e eles vão errar. Um arquivo (ex.: `docs/incidentes.md`) registra pelo menos três erros reais de agente que você observou. Cada entrada diz o que aconteceu, qual mudança no harness (gate, hook, script ou documento) impede a repetição e o hash do commit dessa mudança.
+Você vai usar agentes neste trabalho, e eles vão errar. Um arquivo (ex.: `docs/incidentes.md`) registra pelo menos três erros reais, de qualquer agente que você usou. Cada entrada diz o que aconteceu, qual mudança no harness (gate, hook, script ou documento) impede a repetição e o hash do commit dessa mudança.
 
 ## O que não pode mudar
 
 - A API HTTP: rotas, corpos, status e códigos de erro. A suíte caixa-preta é o contrato, e o avaliador roda a cópia dela que está no repositório base, não a do seu fork.
 - As contas da seed.
 - A IA em modo fake por padrão, sem chave.
-- As pastas e entradas fixas: `api/src/main.ts`, `api/src/config/`, `api/src/domain/`, `api/src/http/`, `api/src/services/`, `api/src/repositories/`, `api/src/integrations/`, `api/src/jobs/triage-worker.ts`, `web/src/main.tsx` e o padrão `api/src/**/*.test.ts`. Você pode criar outras pastas e arquivos, mas não renomear nem mover estas: é nelas que o avaliador planta as violações.
+- As pastas e entradas fixas: `api/src/main.ts`, `api/src/config/`, `api/src/domain/`, `api/src/http/`, `api/src/services/`, `api/src/repositories/`, `api/src/integrations/`, `api/src/jobs/triage-worker.ts`, `web/src/`, `web/src/main.tsx` e o padrão `api/src/**/*.test.ts`. Você pode criar outras pastas e arquivos, mas não renomear nem mover estas: é nelas que o avaliador planta as violações.
 - A stack: Express, Prisma, Postgres, React e Vite. Ferramentas de desenvolvimento você adiciona à vontade.
 - O worker continua um processo separado da API.
 
@@ -154,7 +155,7 @@ A máquina do avaliador tem só Linux ou macOS, Docker, Git e Node.js LTS. Seus 
 - Trocar framework, ORM ou banco.
 - Concorrência entre dois workers no mesmo banco: com um banco por cópia, ela não aparece.
 - Os testes de integração: continuam existindo, mas nenhum critério os cobra.
-- IA real: o modo `openai` continua compilando, mas nenhum critério usa chave.
+- IA real: o modo `openai` continua compilando, mas nenhum critério usa chave. Se for preciso unificar os textos de prompt dele, escolha o que preferir.
 - Qualidade visual do front.
 
 ## Critérios de aceite
@@ -174,16 +175,16 @@ Gates
 ☐ O comando de gates passa na `main`.
 ☐ Cada violação plantada pelo avaliador (pelo menos uma por invariante, de G1 a G10) faz o comando falhar, e a lista final cita o ID da invariante e o arquivo.
 ☐ O comando roda todas as verificações antes de sair, mesmo quando uma delas falha.
-☐ Nenhuma violação foi escondida: não há comentários de supressão (`eslint-disable`, `@ts-ignore`, `@ts-expect-error`, `@ts-nocheck`) em `api/src/` e `web/src/`, e nenhum arquivo dessas pastas fica fora das verificações.
+☐ Nenhuma violação foi escondida: não há comentários de supressão (`eslint-disable`, `@ts-ignore`, `@ts-expect-error`, `@ts-nocheck`) em `api/src/` e `web/src/`, e nenhum arquivo dessas pastas fica fora das verificações, salvo as exceções que definem a própria regra (como `api/src/config/` na G5).
 ☐ Cada regra própria (pelo menos duas) tem motivação documentada e um exemplo de violação versionado que faz os gates falharem.
 ☐ Num clone novo, depois da subida, o hook bloqueia um commit com erro de tipo e outro com variável sem uso, e a configuração do hook mostra que ele roda tipo e lint.
 
 Documentação e registro
 
-☐ O `AGENTS.md` da raiz tem no máximo XX linhas e traz como subir, derrubar e rodar os gates, as contas da seed, as regras de camada e onde está o detalhe.
+☐ O `AGENTS.md` da raiz tem no máximo 60 linhas e traz como subir, derrubar e rodar os gates, as contas da seed, as regras de camada e onde está o detalhe.
 ☐ O `CLAUDE.md` aponta para o `AGENTS.md`.
 ☐ Todo comando e todo caminho citados no `AGENTS.md` existem e funcionam.
-☐ O registro de incidentes tem pelo menos três entradas, cada uma com o hash de um commit que existe no histórico e mexe no harness.
+☐ O registro de incidentes tem pelo menos três entradas, cada uma com o hash de um commit que existe no histórico e mexe no harness (scripts, configuração de gates, hooks ou documentação para agentes).
 ☐ O README tem todas as seções descritas em Entregável.
 ☐ As pastas e entradas fixas continuam onde estavam.
 
@@ -240,16 +241,16 @@ Também bloqueado. Desfaça de novo e confira, na configuração do hook, que el
 git grep -n -E "eslint-disable|@ts-ignore|@ts-expect-error|@ts-nocheck" -- api/src web/src
 ```
 
-A busca não encontra nada. Confira também, nas configurações das ferramentas, que nenhum arquivo de `api/src/` ou `web/src/` foi excluído.
+A busca não encontra nada. Confira também, nas configurações das ferramentas, que nenhum arquivo de `api/src/` ou `web/src/` foi excluído, fora as exceções que definem a própria regra, como `api/src/config/` na G5.
 
 **9.** Derrube a `copia-b`: a `copia-a` continua respondendo em `<API da copia-a>/api/health`. Suba a `copia-b` de novo: sobe sem erro. Derrube as duas.
 
-**10.** Confira a documentação: `wc -l AGENTS.md` dá no máximo XX; o `CLAUDE.md` aponta para o `AGENTS.md`; cada comando citado no `AGENTS.md` roda e cada caminho existe. Para cada incidente do registro, `git show --stat <hash>` mostra um commit que mexe no harness. O README tem as seções descritas em Entregável.
+**10.** Confira a documentação: `wc -l AGENTS.md` dá no máximo 60; o `CLAUDE.md` aponta para o `AGENTS.md`; cada comando citado no `AGENTS.md` roda e cada caminho existe. Para cada incidente do registro, `git show --stat <hash>` mostra um commit que mexe no harness. O README tem as seções descritas em Entregável.
 
 **11.** Confira as pastas e entradas fixas:
 
 ```
-ls -d api/src/config api/src/domain api/src/http api/src/services api/src/repositories api/src/integrations api/src/main.ts api/src/jobs/triage-worker.ts web/src/main.tsx
+ls -d api/src/config api/src/domain api/src/http api/src/services api/src/repositories api/src/integrations api/src/main.ts api/src/jobs/triage-worker.ts web/src web/src/main.tsx
 ```
 
 Harness que só funciona com uma cópia, ou que só barra o que o código de hoje já não faz, não é harness. Se qualquer verificação dos passos 1 a 9 falhar, a entrega está incompleta.
@@ -269,5 +270,7 @@ Um fork público do repositório base, com tudo na branch `main`, cujo README te
 Dependendo da versão do npm, o `npm install` reescreve metadados dos `package-lock.json` do Balcão. Não é sinal de que você quebrou algo, e existe um jeito de instalar que respeita o lockfile como ele está.
 
 Teste a subida num clone novo, numa pasta nova. O "funciona na minha máquina" mora nos arquivos que o Git ignora, como o `.env` e o `node_modules`.
+
+O agente lê o arquivo de instruções (`CLAUDE.md` ou equivalente) quando a sessão abre. Depois de trocar esse arquivo, a sessão aberta e os subagentes dela continuam com a versão antiga: abra uma sessão nova antes de confiar na troca.
 
 Harness bom não é o que barra mais; é o que faz o próximo agente acertar de primeira.
