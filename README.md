@@ -7,7 +7,7 @@ MBA em Engenharia de Software com IA. Repositório interno e temporário com os 
 | `desafio-1-catraca/` | Catraca: do brief ao produto em modo agente | enunciado revisado após o aluno de teste |
 | `desafio-2-balcao/` | Domando um legado | enunciado revisado após o aluno de teste |
 
-Em `desafio-2-balcao/`, o `especificacao-base.md` é documento interno (não vai para o aluno) e `balcao/` é o repositório base.
+Em `desafio-2-balcao/`, o `especificacao-base.md` é documento interno (não vai para o aluno) e `balcao/` é o repositório base, com o enunciado em `balcao/ENUNCIADO.md`.
 
 ## Por que essa dupla
 
