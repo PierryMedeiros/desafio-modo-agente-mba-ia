@@ -231,6 +231,8 @@ Todos são requisito da base, e nenhum pode ter comentário, nome, mensagem de c
 - Este arquivo, ou trechos dele, dentro de `balcao/`.
 - Camadas, pastas, ferramentas ou scripts além dos descritos aqui.
 
+Exceção: depois de validada, a base recebeu o `ENUNCIADO.md` e a pasta `kit-gates/`, que são material do desafio.
+
 ## 13. Histórico
 
 O repositório deve parecer ter crescido aos poucos: commits incrementais, um por pedaço de funcionalidade, com mensagens curtas e comuns (ex.: "add tickets", "upload de anexos", "stats page", "fix login"). Nada de commit único.

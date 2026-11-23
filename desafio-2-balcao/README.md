@@ -2,3 +2,4 @@
 
 - `balcao/`: o repositório base que o aluno recebe. O enunciado está em `balcao/ENUNCIADO.md`; o `balcao/README.md` é o README legado, que faz parte do desafio.
 - `especificacao-base.md`: contrato do Balcão e lista dos problemas plantados. Documento interno, nunca vai para o aluno.
+- `balcao/kit-gates/`: kit público, com que o aluno testa os próprios gates. O kit do corretor, com outras violações, fica na branch `kit-corretor` e nunca vai para o aluno.
