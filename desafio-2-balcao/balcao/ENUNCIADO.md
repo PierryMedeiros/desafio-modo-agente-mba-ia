@@ -46,6 +46,7 @@ web/                     front (React + Vite)
   src/
     main.tsx             entrada do front
 blackbox/                suíte caixa-preta da API
+kit-gates/               kit que testa os seus gates
 docker-compose.yml       Postgres
 ```
 
@@ -91,7 +92,7 @@ Ao final:
 
 Conceitos do curso: Princípios de Harness Engineering (guardrails e enforcements mecânicos) e Projeto prático (gates determinísticos de tipos, lint, regras de dependência, arquitetura, testes e código morto, orquestrados por um único comando).
 
-Um único comando roda todas as verificações, sem parar na primeira falha, e no fim lista cada regra violada, pelo ID, com o arquivo. Ele sai com código diferente de zero se qualquer regra falhar. As invariantes abaixo são obrigatórias; as ferramentas são escolha sua.
+Um único comando roda todas as verificações, sem parar na primeira falha, e termina com a lista das violações encontradas: uma linha por violação, com o ID da regra e o arquivo (ex.: `G4 api/src/http/routes/stats.ts`; para dependência sem uso, a linha traz também o nome da dependência). Ele sai com código diferente de zero se qualquer regra falhar. As invariantes abaixo são obrigatórias; as ferramentas são escolha sua.
 
 | ID | Invariante |
 |---|---|
@@ -110,7 +111,9 @@ Repare que G6 e G8 contam também os imports só de tipo. Como cada ferramenta t
 
 O código de hoje viola várias dessas invariantes. Na entrega, os gates passam na `main` porque as violações foram corrigidas, não escondidas: comentário de supressão ou arquivo excluído da verificação não vale. A única exceção aceita é a que define a própria regra, como `api/src/config/` na G5.
 
-Além das dez, você define pelo menos duas regras suas: algo que descobriu no Balcão e que vale proteger. Cada uma tem a motivação documentada e um exemplo de violação versionado que, aplicado, faz os gates falharem (ex.: um patch, ou um arquivo guardado fora de `api/src` e `web/src`, aplicado só na hora do teste).
+O repositório base traz o `kit-gates/`, que testa os seus gates: ele planta violações das invariantes, uma de cada vez, roda o seu comando de gates, confere se cada violação aparece na lista final com o ID certo e o arquivo e desfaz tudo. Rode com `bash kit-gates/verificar.sh . "<seu comando de gates>"` quantas vezes quiser; o `kit-gates/README.md` explica as opções e os resultados. Na correção, o avaliador usa outras violações das mesmas regras, com outros nomes e outras formas de escrever o mesmo erro: gate que só reconhece as violações do kit não passa.
+
+Além das dez, você define pelo menos duas regras suas: algo que descobriu no Balcão e que vale proteger. Cada uma tem a motivação documentada e um exemplo de violação versionado que, aplicado, faz os gates falharem (ex.: uma violação no formato do `kit-gates/`, um patch ou um arquivo guardado fora de `api/src` e `web/src`, aplicado só na hora do teste).
 
 Por fim, um hook do Git roda gates antes de cada commit e bloqueia o commit quando eles falham, no mínimo os de tipo e de lint. Num clone novo, o hook fica ativo depois do comando de subida, sem nenhum passo extra.
 
@@ -173,7 +176,7 @@ Ambiente
 Gates
 
 ☐ O comando de gates passa na `main`.
-☐ Cada violação plantada pelo avaliador (pelo menos uma por invariante, de G1 a G10) faz o comando falhar, e a lista final cita o ID da invariante e o arquivo.
+☐ Cada violação plantada pelo avaliador (pelo menos uma por invariante, de G1 a G10) faz o comando falhar, e a lista final tem uma linha com o ID da invariante e o arquivo da violação (no caso de dependência sem uso, o nome da dependência).
 ☐ O comando roda todas as verificações antes de sair, mesmo quando uma delas falha.
 ☐ Nenhuma violação foi escondida: não há comentários de supressão (`eslint-disable`, `@ts-ignore`, `@ts-expect-error`, `@ts-nocheck`) em `api/src/` e `web/src/`, e nenhum arquivo dessas pastas fica fora das verificações, salvo as exceções que definem a própria regra (como `api/src/config/` na G5).
 ☐ Cada regra própria (pelo menos duas) tem motivação documentada e um exemplo de violação versionado que faz os gates falharem.
@@ -215,7 +218,7 @@ API_URL=<API da copia-a> npm test
 API_URL=<API da copia-b> npm test
 ```
 
-**5.** Na `copia-a`, rode o comando de gates: passa. Depois o avaliador planta violações, uma de cada vez e pelo menos uma por invariante, de G1 a G10, sempre em arquivos novos dentro das pastas fixas. Para cada uma, roda os gates, confere que falham com o ID e o arquivo na lista final e desfaz a violação. Como quase toda violação plantada também cria um arquivo sem uso, a lista final dessas rodadas traz mais de uma regra, o que mostra que o comando não parou na primeira falha.
+**5.** Na `copia-a`, rode o comando de gates: passa. Depois o avaliador roda o kit do corretor, que funciona como o `kit-gates/`, mas com outras violações das mesmas regras. Ele planta as violações uma de cada vez, pelo menos uma por invariante, de G1 a G10, sempre em arquivos novos dentro das pastas fixas (a de dependência sem uso acrescenta uma dependência a um `package.json`). Para cada uma, roda os gates, confere a linha com o ID e o arquivo na lista final e desfaz a violação. Como quase toda violação também cria um arquivo sem uso, essas rodadas citam mais de uma regra, o que mostra que o comando não parou na primeira falha.
 
 **6.** Aplique os exemplos de violação das regras próprias, como o README explica, e confira que os gates falham.
 
@@ -272,5 +275,7 @@ Dependendo da versão do npm, o `npm install` reescreve metadados dos `package-l
 Teste a subida num clone novo, numa pasta nova. O "funciona na minha máquina" mora nos arquivos que o Git ignora, como o `.env` e o `node_modules`.
 
 O agente lê o arquivo de instruções (`CLAUDE.md` ou equivalente) quando a sessão abre. Depois de trocar esse arquivo, a sessão aberta e os subagentes dela continuam com a versão antiga: abra uma sessão nova antes de confiar na troca.
+
+Rode o `kit-gates/` de novo sempre que mexer na configuração de uma ferramenta de gate: uma opção errada pode desligar uma regra sem nenhum aviso, e os gates continuam passando.
 
 Harness bom não é o que barra mais; é o que faz o próximo agente acertar de primeira.
