@@ -1,0 +1,5 @@
+import * as ia from 'openai'
+
+export function criarGerador(chave: string): ia.OpenAI {
+  return new ia.OpenAI({ apiKey: chave })
+}

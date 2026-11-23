@@ -1,0 +1,5 @@
+import { avancarUm } from './etapa-um'
+
+export function avancarTres(passo: number): number {
+  return passo <= 0 ? 0 : avancarUm(passo - 1) + 1
+}

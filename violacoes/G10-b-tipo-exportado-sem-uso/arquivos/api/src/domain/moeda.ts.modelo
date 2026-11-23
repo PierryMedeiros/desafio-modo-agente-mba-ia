@@ -1,0 +1,5 @@
+export type Moeda = 'BRL'
+
+export function formatarCentavos(valor: number): string {
+  return (valor / 100).toFixed(2)
+}

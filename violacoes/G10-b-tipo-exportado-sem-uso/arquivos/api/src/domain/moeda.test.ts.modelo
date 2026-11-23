@@ -1,0 +1,8 @@
+import { describe, expect, it } from 'vitest'
+import { formatarCentavos } from './moeda'
+
+describe('formatarCentavos', () => {
+  it('formata com duas casas', () => {
+    expect(formatarCentavos(1990)).toBe('19.90')
+  })
+})

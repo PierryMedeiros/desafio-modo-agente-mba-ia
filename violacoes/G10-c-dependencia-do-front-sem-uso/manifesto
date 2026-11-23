@@ -1,0 +1,3 @@
+regra=G10
+cita=is-number
+dependencia=web is-number 7.0.0

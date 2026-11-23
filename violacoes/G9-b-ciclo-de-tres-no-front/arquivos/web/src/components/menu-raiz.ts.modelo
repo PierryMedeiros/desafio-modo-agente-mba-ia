@@ -1,0 +1,5 @@
+import { contarItens } from './menu-item'
+
+export function contarRaiz(nivel: number): number {
+  return nivel <= 0 ? 1 : contarItens(nivel - 1) + 1
+}

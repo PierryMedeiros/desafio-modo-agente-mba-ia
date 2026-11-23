@@ -1,0 +1,8 @@
+import { PrismaClient } from '@prisma/client'
+
+const conexao = new PrismaClient()
+
+export async function contaAtiva(): Promise<boolean> {
+  const linhas = await conexao.$queryRaw<{ ativa: number }[]>`SELECT 1 AS ativa`
+  return linhas.length > 0
+}

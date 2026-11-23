@@ -1,0 +1,1 @@
+export const portaPadrao = Number(process.env['PORT'] ?? 4000)

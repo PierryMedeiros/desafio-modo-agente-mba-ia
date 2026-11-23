@@ -1,0 +1,5 @@
+import { avancarTres } from './etapa-tres'
+
+export function avancarDois(passo: number): number {
+  return passo <= 0 ? 0 : avancarTres(passo - 1) + 1
+}

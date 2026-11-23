@@ -1,0 +1,7 @@
+export interface PrazoPadrao {
+  horas: number
+}
+
+export function horasDoPrazo(prazo: PrazoPadrao): number {
+  return String(prazo.horas)
+}

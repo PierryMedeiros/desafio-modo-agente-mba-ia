@@ -1,0 +1,5 @@
+import { contarRaiz } from './menu-raiz'
+
+export function contarFolhas(nivel: number): number {
+  return nivel <= 0 ? 1 : contarRaiz(nivel - 1) + 1
+}

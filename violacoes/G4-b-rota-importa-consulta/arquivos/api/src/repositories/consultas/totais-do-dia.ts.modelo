@@ -1,0 +1,3 @@
+export function totaisDoDia(valores: number[]): number {
+  return valores.reduce((soma, valor) => soma + valor, 0)
+}

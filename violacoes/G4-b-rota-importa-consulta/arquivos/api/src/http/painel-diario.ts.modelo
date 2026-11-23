@@ -1,0 +1,5 @@
+import { totaisDoDia } from '../repositories/consultas/totais-do-dia'
+
+export function resumoDoDia(valores: number[]): string {
+  return `${totaisDoDia(valores)} chamados`
+}

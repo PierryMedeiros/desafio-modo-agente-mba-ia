@@ -1,0 +1,3 @@
+const { TRIAGE_BATCH_SIZE = '10' } = process.env
+
+export const tamanhoLote = Number(TRIAGE_BATCH_SIZE)

@@ -1,0 +1,5 @@
+import { limiteDeEnvio } from '../http/validacao/limites'
+
+export function restanteDeEnvios(usados: number): number {
+  return limiteDeEnvio - usados
+}

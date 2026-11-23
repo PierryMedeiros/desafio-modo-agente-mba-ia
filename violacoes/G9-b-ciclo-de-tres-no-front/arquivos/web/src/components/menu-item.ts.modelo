@@ -1,0 +1,5 @@
+import { contarFolhas } from './menu-folha'
+
+export function contarItens(nivel: number): number {
+  return nivel <= 0 ? 1 : contarFolhas(nivel - 1) + 1
+}

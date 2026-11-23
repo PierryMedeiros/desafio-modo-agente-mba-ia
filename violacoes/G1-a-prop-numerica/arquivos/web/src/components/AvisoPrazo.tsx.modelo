@@ -1,0 +1,9 @@
+interface AvisoPrazoProps {
+  titulo: string
+}
+
+function AvisoPrazo({ titulo }: AvisoPrazoProps) {
+  return <p>{titulo}</p>
+}
+
+export const avisoPadrao = <AvisoPrazo titulo={42} />

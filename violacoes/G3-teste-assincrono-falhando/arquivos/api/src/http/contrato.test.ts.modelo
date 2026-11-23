@@ -1,0 +1,7 @@
+import { describe, expect, it } from 'vitest'
+
+describe('contrato de resposta', () => {
+  it('resolve com o valor esperado', async () => {
+    await expect(Promise.resolve('ok')).resolves.toBe('erro')
+  })
+})

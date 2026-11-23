@@ -1,0 +1,5 @@
+import { OpenAI } from 'openai'
+
+export function criarAssistente(chave: string): OpenAI {
+  return new OpenAI({ apiKey: chave })
+}

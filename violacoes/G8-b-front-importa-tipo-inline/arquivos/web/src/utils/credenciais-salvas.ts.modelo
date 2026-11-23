@@ -1,0 +1,5 @@
+import { type Credenciais } from '../../../api/src/domain/credenciais'
+
+export function emailSalvo(credenciais: Credenciais): string {
+  return credenciais.email
+}

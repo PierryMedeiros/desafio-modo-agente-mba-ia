@@ -1,0 +1,5 @@
+import { coresDoStatus } from '../../../api/src/domain/cores-status'
+
+export function SeloStatus({ status }: { status: 'aberto' | 'resolvido' }) {
+  return <span style={{ color: coresDoStatus[status] }}>{status}</span>
+}
