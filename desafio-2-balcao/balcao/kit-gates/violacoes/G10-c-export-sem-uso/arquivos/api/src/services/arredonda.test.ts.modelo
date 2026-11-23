@@ -1,0 +1,8 @@
+import { describe, expect, it } from 'vitest'
+import { arredondar } from './arredonda'
+
+describe('arredondar', () => {
+  it('arredonda para o inteiro mais próximo', () => {
+    expect(arredondar(2.6)).toBe(3)
+  })
+})

@@ -1,0 +1,4 @@
+export type ItemCompartilhado = {
+  id: number
+  titulo: string
+}

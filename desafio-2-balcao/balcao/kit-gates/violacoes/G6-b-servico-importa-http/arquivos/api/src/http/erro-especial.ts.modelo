@@ -1,0 +1,8 @@
+export class ErroEspecial extends Error {
+  codigo: string
+
+  constructor(codigo: string) {
+    super(codigo)
+    this.codigo = codigo
+  }
+}

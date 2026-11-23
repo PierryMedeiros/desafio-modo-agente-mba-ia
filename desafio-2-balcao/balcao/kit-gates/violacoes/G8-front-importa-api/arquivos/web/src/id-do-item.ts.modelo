@@ -1,0 +1,5 @@
+import type { ItemCompartilhado } from '../../api/src/domain/item-compartilhado'
+
+export function idDoItem(item: ItemCompartilhado): number {
+  return item.id
+}

@@ -1,0 +1,3 @@
+regra=G10
+cita=left-pad
+dependencia=api left-pad 1.3.0

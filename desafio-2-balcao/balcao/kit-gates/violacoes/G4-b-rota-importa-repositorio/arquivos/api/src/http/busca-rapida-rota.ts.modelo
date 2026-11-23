@@ -1,0 +1,5 @@
+import { buscarRapido } from '../repositories/busca-rapida'
+
+export function termosDaBusca(texto: string): number {
+  return buscarRapido(texto).length
+}

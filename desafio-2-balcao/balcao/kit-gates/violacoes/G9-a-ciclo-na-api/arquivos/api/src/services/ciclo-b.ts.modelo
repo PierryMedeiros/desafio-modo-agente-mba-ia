@@ -1,0 +1,5 @@
+import { descerA } from './ciclo-a'
+
+export function descerB(valor: number): number {
+  return valor <= 0 ? 0 : descerA(valor - 1) + 2
+}

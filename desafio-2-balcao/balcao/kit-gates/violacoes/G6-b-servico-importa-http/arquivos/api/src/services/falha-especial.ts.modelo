@@ -1,0 +1,5 @@
+import { ErroEspecial } from '../http/erro-especial'
+
+export function falhar(codigo: string): never {
+  throw new ErroEspecial(codigo)
+}

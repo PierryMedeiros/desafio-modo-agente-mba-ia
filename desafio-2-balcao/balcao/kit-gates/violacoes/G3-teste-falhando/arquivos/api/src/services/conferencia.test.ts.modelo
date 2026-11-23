@@ -1,0 +1,7 @@
+import { describe, expect, it } from 'vitest'
+
+describe('conferência de totais', () => {
+  it('soma dois valores', () => {
+    expect(1 + 1).toBe(3)
+  })
+})

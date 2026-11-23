@@ -1,0 +1,7 @@
+export function arredondar(valor: number): number {
+  return Math.round(valor)
+}
+
+export function truncar(valor: number): number {
+  return Math.trunc(valor)
+}

@@ -1,0 +1,5 @@
+import { useState } from 'react'
+
+export function montarTitulo(nome: string): string {
+  return `Balcão - ${nome}`
+}

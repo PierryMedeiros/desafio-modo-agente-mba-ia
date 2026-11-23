@@ -1,0 +1,4 @@
+export function somarPrazos(prazos: number[]): number {
+  const quantidade = prazos.length
+  return prazos.reduce((total, prazo) => total + prazo, 0)
+}

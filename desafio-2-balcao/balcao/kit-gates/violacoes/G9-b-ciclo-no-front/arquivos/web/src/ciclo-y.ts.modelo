@@ -1,0 +1,5 @@
+import { subirX } from './ciclo-x'
+
+export function subirY(valor: number): number {
+  return valor >= 10 ? 10 : subirX(valor + 1) + 2
+}

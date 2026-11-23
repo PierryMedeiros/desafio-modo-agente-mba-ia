@@ -1,0 +1,3 @@
+export function normalizarTexto(valor: any): string {
+  return String(valor).trim().toLowerCase()
+}

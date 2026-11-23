@@ -1,0 +1,8 @@
+import { PrismaClient } from '@prisma/client'
+
+const banco = new PrismaClient()
+
+export async function contarChamados(): Promise<number> {
+  const linhas = await banco.$queryRaw<{ total: number }[]>`SELECT 1 AS total`
+  return linhas.length
+}
