@@ -25,7 +25,7 @@ Esforço de referência: de 5 a 8 horas, somando o tempo dos agentes e o seu.
 
 ## O Balcão hoje
 
-Repositório base: <repo a definir>
+Repositório base: https://github.com/devfullcycle/mba-ia-desafio-harness-legado
 
 ```
 api/                     API (Express + Prisma + Postgres) e worker de triagem
