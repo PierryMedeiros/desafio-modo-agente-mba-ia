@@ -10,12 +10,12 @@ if [ $# -lt 2 ] || [ $# -gt 3 ]; then
   exit 2
 fi
 
-REPO=$(cd "$1" 2>/dev/null && pwd) || { echo "Pasta nao encontrada: $1" >&2; exit 2; }
+REPO=$(cd "$1" 2>/dev/null && pwd -P) || { echo "Pasta nao encontrada: $1" >&2; exit 2; }
 GATES=$2
 REGRA=${3:-}
 
 TOPO=$(git -C "$REPO" rev-parse --show-toplevel 2>/dev/null) || { echo "$REPO nao e um repositorio git." >&2; exit 2; }
-TOPO=$(cd "$TOPO" && pwd)
+TOPO=$(cd "$TOPO" && pwd -P)
 if [ "$TOPO" != "$REPO" ]; then
   echo "Use a raiz do repositorio ($TOPO), nao uma subpasta." >&2
   exit 2
