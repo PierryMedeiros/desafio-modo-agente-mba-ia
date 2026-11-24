@@ -3,6 +3,8 @@ Fase do projeto: Desenvolvimento em modo agente, desafio 2
 
 # Balcão: domando um legado para agentes
 
+Desafio referente ao módulo Desenvolvimento em modo agente.
+
 O Balcão é a central de chamados da empresa: clientes abrem chamados, uma IA faz a triagem em segundo plano, atendentes respondem e o admin acompanha os números. Funciona. Foi construído às pressas, por várias mãos e vários agentes, sem revisão, e agora o time quer trabalhar nele do jeito que o módulo ensina: vários agentes ao mesmo tempo, cada um na sua worktree, com gates e documentação que os guiem.
 
 A primeira tentativa durou uma manhã. Duas cópias do projeto não sobem juntas, o README pede seis passos em três terminais, o `CLAUDE.md` manda rodar um comando que não existe e cada agente que entra no código aprende com o que vê: variável de ambiente lida em qualquer lugar, rota falando direto com o banco, serviço que conhece o Express.
